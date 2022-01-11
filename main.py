@@ -40,7 +40,7 @@ def simple_post(param: str):
 #ラベル数
 n_class = 6
 #モデル名
-model_keras = "weight_2022-01-03-11_25_19.h5"
+model_keras = "my_model2"
 
 IMG_WIDTH, IMG_HEIGHT = 224, 224
 TARGET_SIZE = (IMG_WIDTH, IMG_HEIGHT)
@@ -64,12 +64,7 @@ async def inference(file: UploadFile = File(...)):
     #path = Path(model_path)
     from tensorflow.keras.models import load_model
     import os
-    model_path = os.path.join(os.getcwd(), "model")
-    path = os.path.join(model_path, model_keras)
-    print(" model : ")
-    print(os.path.exists(path))
-    print(" model end ")
-    model = load_model(path)
+    model = load_model(model_keras)
     predict = model.predict(x)
     for p in predict:
         class_index = p.argmax()
