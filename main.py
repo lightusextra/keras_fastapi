@@ -52,8 +52,8 @@ async def inference(file: UploadFile = File(...)):
     contents = await file.read()
     from io import BytesIO
     from PIL import Image
-    #im = Image.open(BytesIO(contents))
-    #im.save(file.filename)
+    im = Image.open(BytesIO(contents))
+    im.save(file.filename)
     from keras.preprocessing import image as preprocessing
     img = preprocessing.load_img(file.filename, target_size=TARGET_SIZE)
     img = preprocessing.img_to_array(img)
@@ -63,6 +63,9 @@ async def inference(file: UploadFile = File(...)):
     #model_path = os.path.join(os.getcwd(), "model", model_keras)
     #from pathlib import Path
     #path = Path(model_path)
+    del im
+    del contents
+    del file
     import gc
     gc.collect()
     from tensorflow.keras.models import load_model
