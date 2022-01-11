@@ -71,7 +71,7 @@ async def inference(file: UploadFile = File(...)):
     import gc
     gc.collect()
     from tensorflow.keras.models import load_model
-    model = load_model(model_keras)
+    model = load_model(model_keras, compile=False)
     predict = model.predict(x)
     for p in predict:
         class_index = p.argmax()
