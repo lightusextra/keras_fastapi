@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi import File, UploadFile
 from starlette.middleware.cors import CORSMiddleware
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 app = FastAPI()
 
@@ -50,9 +52,8 @@ async def inference(file: UploadFile = File(...)):
     contents = await file.read()
     from io import BytesIO
     from PIL import Image
-    im = Image.open(BytesIO(contents))
-    im.save(file.filename)
-    import os
+    #im = Image.open(BytesIO(contents))
+    #im.save(file.filename)
     from keras.preprocessing import image as preprocessing
     img = preprocessing.load_img(file.filename, target_size=TARGET_SIZE)
     img = preprocessing.img_to_array(img)
@@ -62,8 +63,9 @@ async def inference(file: UploadFile = File(...)):
     #model_path = os.path.join(os.getcwd(), "model", model_keras)
     #from pathlib import Path
     #path = Path(model_path)
+    import gc
+    gc.collect()
     from tensorflow.keras.models import load_model
-    import os
     model = load_model(model_keras)
     predict = model.predict(x)
     for p in predict:
