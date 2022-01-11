@@ -66,6 +66,8 @@ async def inference(file: UploadFile = File(...)):
     del im
     del contents
     del file
+    from tensorflow import keras
+    keras.backend.clear_session()
     import gc
     gc.collect()
     from tensorflow.keras.models import load_model
