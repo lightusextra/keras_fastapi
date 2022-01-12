@@ -2,7 +2,15 @@ from fastapi import FastAPI
 from fastapi import File, UploadFile
 from starlette.middleware.cors import CORSMiddleware
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+from werkzeug.utils import secure_filename
+from keras.models import Sequential, load_model
+from keras.preprocessing import image
+import tensorflow as tf
+import numpy as np
+
+classes = ["dog", "cat"]
+num_classes = len(classes)
+image_size = 150
 
 app = FastAPI()
 
@@ -39,15 +47,8 @@ def simple_post(param: str):
         'message': f'You posted `{param}`!'
     }
 
-#ラベル数
-n_class = 6
-#モデル名
-model_keras = './cats_dogs_model.h5'
-
 IMG_WIDTH, IMG_HEIGHT = 224, 224
 TARGET_SIZE = (IMG_WIDTH, IMG_HEIGHT)
-
-import tensorflow as tf
 
 graph = tf.compat.v1.get_default_graph()
 
@@ -55,22 +56,20 @@ graph = tf.compat.v1.get_default_graph()
 async def inference(file: UploadFile = File(...)):
     global graph
     with graph.as_default():
+        model = load_model('./cats_dogs_model.h5')  # 学習済みモデルをロードする
         contents = await file.read()
         from io import BytesIO
         from PIL import Image
         im = Image.open(BytesIO(contents))
         im.save(file.filename)
-        from keras.preprocessing import image as preprocessing
-        img = preprocessing.load_img(file.filename, target_size=TARGET_SIZE)
-        img = preprocessing.img_to_array(img)
-        import numpy as np
-        x = np.expand_dims(img, axis=0)
-        from os.path import join, dirname, realpath
-        from keras.models import load_model
-        model = load_model(model_keras, compile=False)
-        predict = model.predict(x)
-        print(predict[0])
-        for p in predict:
-            class_index = p.argmax()
-            probality = p.max()
-            return {"result":"OK", "class_index":str(class_index), "probality":str(probality)}
+        img = image.load_img(file.filename, target_size=TARGET_SIZE)
+        x = image.img_to_array(img)
+        x = np.expand_dims(x, axis=0)
+        result = model.predict(x)
+        print(result[0])
+        if result[0] > 0.5:
+            answer = "犬"
+        else:
+            answer = "猫"
+        pred_answer = "これはもしや…" + answer + "では？"
+        return {"result":"OK", "class_index":str(result[0]), "probality":str(pred_answer)}
