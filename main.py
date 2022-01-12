@@ -42,38 +42,47 @@ def simple_post(param: str):
 #ラベル数
 n_class = 6
 #モデル名
-model_keras = "my_model2"
+model_keras = './cats_dogs_model.h5'
 
 IMG_WIDTH, IMG_HEIGHT = 224, 224
 TARGET_SIZE = (IMG_WIDTH, IMG_HEIGHT)
 
+import tensorflow as tf
+
+graph = tf.compat.v1.get_default_graph()
+
 @app.post('/api/inference')
 async def inference(file: UploadFile = File(...)):
-    contents = await file.read()
-    from io import BytesIO
-    from PIL import Image
-    im = Image.open(BytesIO(contents))
-    im.save(file.filename)
-    from keras.preprocessing import image as preprocessing
-    img = preprocessing.load_img(file.filename, target_size=TARGET_SIZE)
-    img = preprocessing.img_to_array(img)
-    import numpy as np
-    x = np.expand_dims(img, axis=0)
-    from os.path import join, dirname, realpath
-    #model_path = os.path.join(os.getcwd(), "model", model_keras)
-    #from pathlib import Path
-    #path = Path(model_path)
-    del im
-    del contents
-    del file
-    from tensorflow import keras
-    keras.backend.clear_session()
-    import gc
-    gc.collect()
-    from tensorflow.keras.models import load_model
-    model = load_model(model_keras, compile=False)
-    predict = model.predict(x)
-    for p in predict:
-        class_index = p.argmax()
-        probality = p.max()
-        return {"result":"OK", "class_index":str(class_index), "probality":str(probality)}
+    global graph
+    with graph.as_default():
+        contents = await file.read()
+        from io import BytesIO
+        from PIL import Image
+        im = Image.open(BytesIO(contents))
+        im.save(file.filename)
+        from keras.preprocessing import image as preprocessing
+        img = preprocessing.load_img(file.filename, target_size=TARGET_SIZE)
+        img = preprocessing.img_to_array(img)
+        import numpy as np
+        x = np.expand_dims(img, axis=0)
+        from os.path import join, dirname, realpath
+        #model_path = os.path.join(os.getcwd(), "model", model_keras)
+        #from pathlib import Path
+        #path = Path(model_path)
+        del im
+        del contents
+        del file
+        from tensorflow import keras
+        keras.backend.clear_session()
+        import gc
+        gc.collect()
+        #from tensorflow.keras.models import load_model
+        #model = load_model(model_keras, compile=False)
+        import tensorflow as tf
+        model = load_model(model_keras, compile=False)
+        predict = model.predict(x)
+        print(predict[0])
+        for p in predict:
+            class_index = p.argmax()
+            probality = p.max()
+            return {"result":"OK", "class_index":str(class_index), "probality":str(probality)}
