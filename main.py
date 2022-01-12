@@ -66,19 +66,7 @@ async def inference(file: UploadFile = File(...)):
         import numpy as np
         x = np.expand_dims(img, axis=0)
         from os.path import join, dirname, realpath
-        #model_path = os.path.join(os.getcwd(), "model", model_keras)
-        #from pathlib import Path
-        #path = Path(model_path)
-        del im
-        del contents
-        del file
-        from tensorflow import keras
-        keras.backend.clear_session()
-        import gc
-        gc.collect()
-        #from tensorflow.keras.models import load_model
-        #model = load_model(model_keras, compile=False)
-        import tensorflow as tf
+        from keras.models import load_model
         model = load_model(model_keras, compile=False)
         predict = model.predict(x)
         print(predict[0])
