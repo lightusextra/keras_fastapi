@@ -8,10 +8,6 @@ from keras.preprocessing import image
 import tensorflow as tf
 import numpy as np
 
-classes = ["dog", "cat"]
-num_classes = len(classes)
-image_size = 150
-
 app = FastAPI()
 
 # https://fastapi.tiangolo.com/tutorial/cors/
@@ -53,11 +49,11 @@ TARGET_SIZE = (IMG_WIDTH, IMG_HEIGHT)
 graph = tf.compat.v1.get_default_graph()
 
 @app.post('/api/inference')
-async def inference(file: UploadFile = File(...)):
+def inference(file: UploadFile = File(...)):
     global graph
     with graph.as_default():
         model = load_model('./cats_dogs_model.h5')  # 学習済みモデルをロードする
-        contents = await file.read()
+        contents = file.read()
         from io import BytesIO
         from PIL import Image
         im = Image.open(BytesIO(contents))
