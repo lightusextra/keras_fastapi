@@ -48,12 +48,11 @@ TARGET_SIZE = (IMG_WIDTH, IMG_HEIGHT)
 
 graph = tf.compat.v1.get_default_graph()
 
-model = load_model('./cats_dogs_model.h5')  # 学習済みモデルをロードする
-
 @app.post('/api/inference')
 def inference(file: UploadFile = File(...)):
     global graph
     with graph.as_default():
+        model = load_model('./cats_dogs_model.h5')  # 学習済みモデルをロードする
         contents = file.read()
         from io import BytesIO
         from PIL import Image
