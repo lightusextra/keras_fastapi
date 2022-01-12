@@ -50,7 +50,7 @@ typing_extensions==4.0.1
 urllib3==1.26.8
 uvicorn==0.16.0
 watchgod==0.7
-websockets==2.0
+websockets==10.1
 Werkzeug==2.0.2
 wincertstore==0.2
 wrapt==1.13.3
